@@ -2,18 +2,21 @@
 Implementation of the Axelrod model of cultural convergence and polarisation
 
 AXELROD R (1997) The dissemination of culture - A model with local convergence and global polarization. 
-    Journal of Conflict Resolution 41(2), pp. 203-226.
-
+    Journal of Conflict Resolution 41(2), pp. 203-226.]
 """
 
 # Convention: greediness is the first component, money the second
 
 # Import libraries
+import numpy as np
+from matplotlib import pyplot
+from numpy.random import random
+from matplotlib import cm
 import random as rd
 
 # Define constants
 SIZE = 5
-RUNS = 1000
+RUNS = 10000
 PROB_SHIFT = 0.05
 MONEY_GAMBLE = 0.1
 
@@ -48,6 +51,13 @@ class Axelrod():
     
     def __init__(self):
         self.agents = [Agent() for i in range(SIZE**2)]
+        
+        # init result vector 
+        self.results = {} # empty dictionary
+        self.results = {i: [] for i in range(SIZE**2)}
+        # add results for each participant to their corresponding key
+        for i in range(SIZE**2):
+            self.results[i] = []            
     
     def tick(self):
         "Runs a single cycle of the simulation"
@@ -77,10 +87,24 @@ class Axelrod():
         print()
         print("Running simulation...")
         for r in range(1,RUNS):
+            for i in range (SIZE**2):
+                self.results[i].append(self.agents[i].money)
+            if r % (RUNS/5) == 0:
+                print('run {}'.format(r))
+                self.visualize_output()
             self.tick()
         print("Final state of the model:")
         self.show_state()
-        
-model = Axelrod()
 
-model.run_sim()
+    def visualize_output(self):
+        color = []
+        for i in range(len(self.agents)):
+            color.append(self.agents[i].money)
+        color = np.reshape(color, (SIZE,SIZE))
+        pyplot.imshow(color, interpolation='nearest', cmap=cm.Blues, vmin=-100, vmax=100)
+        pyplot.show()
+
+if __name__ == "__main__":
+    model = Axelrod()
+    model.run_sim()
+
