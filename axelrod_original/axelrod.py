@@ -20,7 +20,8 @@ RUNS = 500000 # number of iterations
 PROB_SHIFT = 0.1 # additional winning probability for the agent with more money
 MONEY_GAMBLE_SHARE = 0.004 # play in a game for this share of total money in the economy
 START_WEALTH_DISTRIBUTION = 3 # 1: everyone gets 2/7, 2: random draw from uniform(0,4/7), 3: random draw from beta(2,5): replicates realistic wealth distribution between 0 and 1 with expected value 2/7
-TAX_RATE = 0.0 # flat tax on wealth, redistributed lump-sum every iteration. Set to 0 to get model without state
+TAX_RATE = 0.01 # flat tax on wealth, redistributed lump-sum every iteration. Set to 0 to get model without state
+NO_DEBT = 1 # 1: switch off that agents can have money smaller or equal to zero, 0: allow debt
 
 # Seed pseudo-random number generator
 rd.seed(1)
@@ -39,6 +40,10 @@ class Agent():
             self.money = rd.betavariate(2, 5)
     def game(self, MONEY_GAMBLE, target, model):
         interaction_probability = self.greediness
+
+        if NO_DEBT == 1:
+            if self.money <= 0 or model.agents[target].money <= 0:
+                interaction_probability = 0
 
         if self.money > model.agents[target].money:
             win_probability = 0.5 + PROB_SHIFT
