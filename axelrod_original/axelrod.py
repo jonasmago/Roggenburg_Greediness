@@ -16,11 +16,11 @@ import random as rd
 
 # Define constants
 SIZE = 5 # grid of agents with SIZE * SIZE
-RUNS = 1000 # number of iterations
+RUNS = 500000 # number of iterations
 PROB_SHIFT = 0.1 # additional winning probability for the agent with more money
 MONEY_GAMBLE_SHARE = 0.004 # play in a game for this share of total money in the economy
 START_WEALTH_DISTRIBUTION = 3 # 1: everyone gets 2/7, 2: random draw from uniform(0,4/7), 3: random draw from beta(2,5): replicates realistic wealth distribution between 0 and 1 with expected value 2/7
-TAX_RATE = 0.01 # flat tax on wealth, redistributed lump-sum every iteration. Set to 0 to get model without state
+TAX_RATE = 0.0 # flat tax on wealth, redistributed lump-sum every iteration. Set to 0 to get model without state
 
 # Seed pseudo-random number generator
 rd.seed(1)
@@ -82,7 +82,8 @@ class Axelrod():
  
     def show_state(self):
         for n in range(0, SIZE):
-            row = [ [self.agents[i].greediness, self.agents[i].money] for i in range(n * SIZE, n * (SIZE) + SIZE)]
+            #row = [ [self.agents[i].greediness, self.agents[i].money] for i in range(n * SIZE, n * (SIZE) + SIZE)]
+            row = [ [self.agents[i].money] for i in range(n * SIZE, n * (SIZE) + SIZE)]
             for agent in row:
                 print("[", end="")
                 print(*agent, sep=",", end="")
@@ -111,7 +112,7 @@ class Axelrod():
         for i in range(len(self.agents)):
             color.append(self.agents[i].money)
         color = np.reshape(color, (SIZE,SIZE))
-        pyplot.imshow(color, interpolation='nearest', cmap=cm.Blues, vmin=-100, vmax=100)
+        pyplot.imshow(color, interpolation='nearest', cmap=cm.Blues, vmin=-150, vmax=150)
         pyplot.show()
 
 if __name__ == "__main__":
