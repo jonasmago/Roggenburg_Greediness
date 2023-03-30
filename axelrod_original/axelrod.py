@@ -17,7 +17,7 @@ RUNS = 1000 # number of iterations
 PROB_SHIFT = 0.1 # additional winning probability for the agent with more money
 MONEY_GAMBLE_SHARE = 0.004 # play in a game for this share of total money in the economy
 START_WEALTH_DISTRIBUTION = 3 # 1: everyone gets 2/7, 2: random draw from uniform(0,4/7), 3: random draw from beta(2,5): replicates realistic wealth distribution between 0 and 1 with expected value 2/7
-TAX_RATE = 0.1 # flat tax on wealth, redistributed lump-sum every iteration. Set to 0 to get model without state
+TAX_RATE = 0.01 # flat tax on wealth, redistributed lump-sum every iteration. Set to 0 to get model without state
 
 # Seed pseudo-random number generator
 rd.seed(1)
@@ -64,6 +64,9 @@ class Axelrod():
             while active[0] == passive[0]:
                 passive = rd.choice(list(enumerate(self.agents)))     
             active[1].game(MONEY_GAMBLE_SHARE * sum([self.agents[i].money for i in range(SIZE**2)]), passive[0], self)
+            total_wealth = sum([self.agents[i].money for i in range(0, SIZE**2)])
+            for i in range(0, SIZE**2):
+                self.agents[i].money = (1-TAX_RATE) * self.agents[i].money + (TAX_RATE * total_wealth / (SIZE**2))
         except IndexError:
             self.tick()
  
@@ -85,9 +88,6 @@ class Axelrod():
         print("Running simulation...")
         for r in range(1,RUNS):
             self.tick()
-            #total_wealth = sum([self.agents[i].money for i in range(0, SIZE**2)])
-            #for i in range(0, SIZE**2):
-            #    self.agents[i].money = (1-TAX_RATE) * self.agents[i].money + (TAX_RATE * total_wealth / (SIZE**2))
         print("Final state of the model:")
         self.show_state()
         
