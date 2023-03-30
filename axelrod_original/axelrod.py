@@ -15,10 +15,12 @@ from matplotlib import cm
 import random as rd
 
 # Define constants
-SIZE = 5
-RUNS = 10000
-PROB_SHIFT = 0.05
-MONEY_GAMBLE = 0.1
+SIZE = 5 # grid of agents with SIZE * SIZE
+RUNS = 1000 # number of iterations
+PROB_SHIFT = 0.1 # additional winning probability for the agent with more money
+MONEY_GAMBLE_SHARE = 0.004 # play in a game for this share of total money in the economy
+START_WEALTH_DISTRIBUTION = 3 # 1: everyone gets 2/7, 2: random draw from uniform(0,4/7), 3: random draw from beta(2,5): replicates realistic wealth distribution between 0 and 1 with expected value 2/7
+TAX_RATE = 0.01 # flat tax on wealth, redistributed lump-sum every iteration. Set to 0 to get model without state
 
 # Seed pseudo-random number generator
 rd.seed(1)
@@ -29,8 +31,13 @@ class Agent():
     
     def __init__(self):
         self.greediness = rd.uniform(0, 1)
-        self.money = rd.uniform(0, 1)
-    def game(self, target, model):
+        if START_WEALTH_DISTRIBUTION == 1:
+            self.money = 2/7
+        elif START_WEALTH_DISTRIBUTION == 2:
+            self.money = rd.uniform(0, 4/7)
+        elif START_WEALTH_DISTRIBUTION == 3:
+            self.money = rd.betavariate(2, 5)
+    def game(self, MONEY_GAMBLE, target, model):
         interaction_probability = self.greediness
 
         if self.money > model.agents[target].money:
@@ -65,8 +72,11 @@ class Axelrod():
             active = rd.choice(list(enumerate(self.agents)))
             passive = rd.choice(list(enumerate(self.agents)))
             while active[0] == passive[0]:
-                passive = rd.choice(list(enumerate(self.agents)))
-            active[1].game(passive[0], self)
+                passive = rd.choice(list(enumerate(self.agents)))     
+            active[1].game(MONEY_GAMBLE_SHARE * sum([self.agents[i].money for i in range(SIZE**2)]), passive[0], self)
+            total_wealth = sum([self.agents[i].money for i in range(0, SIZE**2)])
+            for i in range(0, SIZE**2):
+                self.agents[i].money = (1-TAX_RATE) * self.agents[i].money + (TAX_RATE * total_wealth / (SIZE**2))
         except IndexError:
             self.tick()
  
