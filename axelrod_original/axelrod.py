@@ -15,16 +15,17 @@ from matplotlib import cm
 import random as rd
 
 # Define constants
-SIZE = 5 # grid of agents with SIZE * SIZE
-RUNS = 500000 # number of iterations
+SIZE = 7 # grid of agents with SIZE * SIZE
+RUNS = 100000 # number of iterations
 PROB_SHIFT = 0.1 # additional winning probability for the agent with more money
 MONEY_GAMBLE_SHARE = 0.004 # play in a game for this share of total money in the economy
 START_WEALTH_DISTRIBUTION = 3 # 1: everyone gets 2/7, 2: random draw from uniform(0,4/7), 3: random draw from beta(2,5): replicates realistic wealth distribution between 0 and 1 with expected value 2/7
-TAX_RATE = 0.01 # flat tax on wealth, redistributed lump-sum every iteration. Set to 0 to get model without state
+TAX_RATE = 0.00003 # flat tax on wealth, redistributed lump-sum every iteration. Set to 0 to get model without state
 NO_DEBT = 1 # 1: switch off that agents can have money smaller or equal to zero, 0: allow debt
-
+VISUAL = 0 # 1: shows plots while calculating, 0: does not show plots
 # Seed pseudo-random number generator
-rd.seed(1)
+
+#rd.seed(1)
 
 # Define the model and the agents as classes
 class Agent():
@@ -63,6 +64,7 @@ class Axelrod():
     
     def __init__(self):
         self.agents = [Agent() for i in range(SIZE**2)]
+        self.n_agents = SIZE**2
         
         # init result vector 
         self.results = {} # empty dictionary
@@ -105,9 +107,10 @@ class Axelrod():
         for r in range(1,RUNS):
             for i in range (SIZE**2):
                 self.results[i].append(self.agents[i].money)
-            if r % (RUNS/5) == 0:
-                print('run {}'.format(r))
-                self.visualize_output()
+            if VISUAL == 1:
+                if r % (RUNS/5) == 0:
+                    print('run {}'.format(r))
+                    self.visualize_output()
             self.tick()
         print("Final state of the model:")
         self.show_state()
@@ -117,7 +120,7 @@ class Axelrod():
         for i in range(len(self.agents)):
             color.append(self.agents[i].money)
         color = np.reshape(color, (SIZE,SIZE))
-        pyplot.imshow(color, interpolation='nearest', cmap=cm.Blues, vmin=-150, vmax=150)
+        pyplot.imshow(color, interpolation='nearest', cmap=cm.Blues, vmin=0, vmax=1)
         pyplot.show()
 
 if __name__ == "__main__":
