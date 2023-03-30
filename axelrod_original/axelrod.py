@@ -16,6 +16,7 @@ SIZE = 5
 RUNS = 1000
 PROB_SHIFT = 0.05
 MONEY_GAMBLE = 0.1
+START_WEALTH_DISTRIBUTION = 1 # 1: everyone gets 0.5, 2: random draw from uniform(0,1), 3: random draw from beta(2,5): replicates realistic wealth distribution between 0 and 1
 
 # Seed pseudo-random number generator
 rd.seed(1)
@@ -26,7 +27,12 @@ class Agent():
     
     def __init__(self):
         self.greediness = rd.uniform(0, 1)
-        self.money = rd.uniform(0, 1)
+        if START_WEALTH_DISTRIBUTION == 1:
+            self.money = 0.5
+        elif START_WEALTH_DISTRIBUTION == 2:
+            self.money = rd.uniform(0, 1)
+        elif START_WEALTH_DISTRIBUTION == 3:
+            self.money = rd.betavariate(2, 5)
     def game(self, target, model):
         interaction_probability = self.greediness
 
