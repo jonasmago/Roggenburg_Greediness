@@ -12,14 +12,15 @@ AXELROD R (1997) The dissemination of culture - A model with local convergence a
 import random as rd
 
 # Define constants
-SIZE = 5
-RUNS = 1000
-PROB_SHIFT = 0.05
-MONEY_GAMBLE = 0.1
-START_WEALTH_DISTRIBUTION = 1 # 1: everyone gets 0.5, 2: random draw from uniform(0,1), 3: random draw from beta(2,5): replicates realistic wealth distribution between 0 and 1
+SIZE = 5 # grid of agents with SIZE * SIZE
+RUNS = 1000 # number of iterations
+PROB_SHIFT = 0.1 # additional winning probability for the agent with more money
+MONEY_GAMBLE_SHARE = 0.004 # play in a game for this share of total money in the economy
+MONEY_GAMBLE = 0 # initialize absolute value of gambled money
+START_WEALTH_DISTRIBUTION = 1 # 1: everyone gets 2/7, 2: random draw from uniform(0,4/7), 3: random draw from beta(2,5): replicates realistic wealth distribution between 0 and 1 with expected value 2/7
 
 # Seed pseudo-random number generator
-rd.seed(1)
+#rd.seed(1)
 
 # Define the model and the agents as classes
 class Agent():
@@ -28,9 +29,9 @@ class Agent():
     def __init__(self):
         self.greediness = rd.uniform(0, 1)
         if START_WEALTH_DISTRIBUTION == 1:
-            self.money = 0.5
+            self.money = 2/7
         elif START_WEALTH_DISTRIBUTION == 2:
-            self.money = rd.uniform(0, 1)
+            self.money = rd.uniform(0, 4/7)
         elif START_WEALTH_DISTRIBUTION == 3:
             self.money = rd.betavariate(2, 5)
     def game(self, target, model):
@@ -80,12 +81,15 @@ class Axelrod():
         print("Initial state of the model:")
         print()
         self.show_state()
+        MONEY_GAMBLE = MONEY_GAMBLE_SHARE * sum([self.agents[i].money for i in range(0, SIZE**2)])
         print()
         print("Running simulation...")
         for r in range(1,RUNS):
             self.tick()
         print("Final state of the model:")
         self.show_state()
+        print("Money gamble:")
+        print(MONEY_GAMBLE)
         
 model = Axelrod()
 
