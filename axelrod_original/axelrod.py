@@ -20,6 +20,7 @@ RUNS = 100000 # number of iterations
 PROB_SHIFT = 0.1 # additional winning probability for the agent with more money
 MONEY_GAMBLE_SHARE = 0.004 # play in a game for this share of total money in the economy
 START_WEALTH_DISTRIBUTION = 3 # 1: everyone gets 2/7, 2: random draw from uniform(0,4/7), 3: random draw from beta(2,5): replicates realistic wealth distribution between 0 and 1 with expected value 2/7
+GREEDINESS_DISTRIBUTION = 3 # 1: everyone gets 0.5, 2: random draw from uniform(0,1), 3: random draw from beta(5,5): some agents are very greedy and some not at all
 TAX_RATE = 0.00003 # flat tax on wealth, redistributed lump-sum every iteration. Set to 0 to get model without state
 NO_DEBT = 1 # 1: switch off that agents can have money smaller or equal to zero, 0: allow debt
 VISUAL = 0 # 1: shows plots while calculating, 0: does not show plots
@@ -32,7 +33,13 @@ class Agent():
     "Agents to populate the model"
     
     def __init__(self):
-        self.greediness = rd.uniform(0, 1)
+        if GREEDINESS_DISTRIBUTION == 1:
+            self.greediness = 0.5
+        elif GREEDINESS_DISTRIBUTION == 2:
+            self.greediness = rd.uniform(0, 1)
+        elif GREEDINESS_DISTRIBUTION == 3:
+            self.greediness = rd.betavariate(5, 5)
+            
         if START_WEALTH_DISTRIBUTION == 1:
             self.money = 2/7
         elif START_WEALTH_DISTRIBUTION == 2:
