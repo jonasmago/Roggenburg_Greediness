@@ -15,17 +15,22 @@ import random as rd
 
 # Define constants
 SIZE = 7 # grid of agents with SIZE * SIZE
-RUNS = 100000 # number of iterations
+RUNS = 500000 # number of iterations
 PROB_SHIFT = 0.1 # additional winning probability for the agent with more money
-MONEY_GAMBLE_SHARE = 0.004 # play in a game for this share of total money in the economy
-START_WEALTH_DISTRIBUTION = 3 # 1: everyone gets 2/7, 2: random draw from uniform(0,4/7), 3: random draw from beta(2,5): replicates realistic wealth distribution between 0 and 1 with expected value 2/7
+MONEY_GAMBLE_SHARE = 0.0004 # play in a game for this share of total money in the economy
+#MONEY_GAMBLE_SHARE = 0.004 # play in a game for this share of total money in the economy
+START_WEALTH_DISTRIBUTION = 1 # 1: everyone gets 2/7, 2: random draw from uniform(0,4/7), 3: random draw from beta(2,5): replicates realistic wealth distribution between 0 and 1 with expected value 2/7
 GREEDINESS_DISTRIBUTION = 3 # 1: everyone gets 0.5, 2: random draw from uniform(0,1), 3: random draw from beta(5,5): some agents are very greedy and some not at all
 TAX_RATE = 0.00003 # flat tax on wealth, redistributed lump-sum every iteration. Set to 0 to get model without state
+TAX_RATE = 0
+TAX_RATE = 0.00003
+TAX_RATE = 0.000015
+#TAX_RATE = 0 # flat tax on wealth, redistributed lump-sum every iteration. Set to 0 to get model without state
 NO_DEBT = 1 # 1: switch off that agents can have money smaller or equal to zero, 0: allow debt
 VISUAL = 0 # 1: shows plots while calculating, 0: does not show plots
 # Seed pseudo-random number generator
 
-#rd.seed(1)
+rd.seed(1)
 
 # Define the model and the agents as classes
 class Agent():
@@ -40,7 +45,7 @@ class Agent():
             self.greediness = rd.betavariate(5, 5)
             
         if START_WEALTH_DISTRIBUTION == 1:
-            self.money = 2/7
+            self.money = 1 #2/7
         elif START_WEALTH_DISTRIBUTION == 2:
             self.money = rd.uniform(0, 4/7)
         elif START_WEALTH_DISTRIBUTION == 3:
@@ -132,3 +137,5 @@ class Axelrod():
 if __name__ == "__main__":
     model = Axelrod()
     model.run_sim()
+
+
