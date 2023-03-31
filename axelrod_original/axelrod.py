@@ -25,8 +25,8 @@ GREEDINESS_DISTRIBUTION = 4 # 1: everyone gets 0.5, 2: random draw from uniform(
 TAX_RATE = 0.00003 # flat tax on wealth, redistributed lump-sum every iteration. Set to 0 to get model without state
 NO_DEBT = 1 # 1: switch off that agents can have money smaller or equal to zero, 0: allow debt
 VISUAL = 0 # 1: shows plots while calculating, 0: does not show plots
-# Seed pseudo-random number generator
 
+# Seed pseudo-random number generator
 #rd.seed(1)
 
 # Define the model and the agents as classes
@@ -80,7 +80,6 @@ class Agent():
 
 class Axelrod():
     "This is the model"
-    
     def __init__(self):
         self.agents = [Agent() for i in range(SIZE**2)]
         self.n_agents = SIZE**2
