@@ -15,18 +15,16 @@ import random as rd
 
 # Define constants
 SIZE = 7 # grid of agents with SIZE * SIZE
-RUNS = 100 # number of iterations
+RUNS = 100000 # number of iterations
 PROB_SHIFT = 0.1 # additional winning probability for the agent with more money
 MONEY_GAMBLE_SHARE = 0.004 # play in a game for this share of total money in the economy
-FIXED_SHARE = 1 # 1: agents play for a fixed amount of money, 0: play for share of cake via MONEY_GAMBLE_SHARE
-MONEY_GAMBLE_FIXED = 0.01 # fixed money gamble parameterSTART_WEALTH_DISTRIBUTION = 4 # 1: everyone gets 2/7, 2: random draw from uniform(0,4/7), 3: random draw from beta(2,5): replicates realistic wealth distribution between 0 and 1 with expected value 2/7; 4: everyone gets 1
-START_WEALTH_DISTRIBUTION = 4 # 1: everyone gets 2/7, 2: random draw from uniform(0,4/7), 3: random draw from beta(2,5): replicates realistic wealth distribution between 0 and 1 with expected value 2/7; 4: everyone gets 1
-GREEDINESS_DISTRIBUTION = 4 # 1: everyone gets 0.5, 2: random draw from uniform(0,1), 3: random draw from beta(5,5): some agents are very greedy and some not at all; 4: half is 0.6, other half is 0.4
+START_WEALTH_DISTRIBUTION = 3 # 1: everyone gets 2/7, 2: random draw from uniform(0,4/7), 3: random draw from beta(2,5): replicates realistic wealth distribution between 0 and 1 with expected value 2/7
+GREEDINESS_DISTRIBUTION = 3 # 1: everyone gets 0.5, 2: random draw from uniform(0,1), 3: random draw from beta(5,5): some agents are very greedy and some not at all
 TAX_RATE = 0.00003 # flat tax on wealth, redistributed lump-sum every iteration. Set to 0 to get model without state
 NO_DEBT = 1 # 1: switch off that agents can have money smaller or equal to zero, 0: allow debt
 VISUAL = 0 # 1: shows plots while calculating, 0: does not show plots
-
 # Seed pseudo-random number generator
+
 #rd.seed(1)
 
 # Define the model and the agents as classes
@@ -40,8 +38,6 @@ class Agent():
             self.greediness = rd.uniform(0, 1)
         elif GREEDINESS_DISTRIBUTION == 3:
             self.greediness = rd.betavariate(5, 5)
-        elif GREEDINESS_DISTRIBUTION == 4:
-            self.greediness = 0.6 if rd.random() < 0.5 else 0.4
             
         if START_WEALTH_DISTRIBUTION == 1:
             self.money = 2/7
@@ -49,10 +45,6 @@ class Agent():
             self.money = rd.uniform(0, 4/7)
         elif START_WEALTH_DISTRIBUTION == 3:
             self.money = rd.betavariate(2, 5)
-        elif START_WEALTH_DISTRIBUTION == 4:
-            self.money = 1
-        self.performance=[]
-
     def game(self, MONEY_GAMBLE, target, model):
         interaction_probability = self.greediness
 
@@ -69,17 +61,13 @@ class Agent():
             if rd.uniform(0, 1) < win_probability:    
                 model.agents[target].money = model.agents[target].money - MONEY_GAMBLE
                 self.money = self.money + MONEY_GAMBLE
-                model.agent[target].performance.append(0)
-                self.performance.append(1)
-                
             else: 
                 model.agents[target].money = model.agents[target].money + MONEY_GAMBLE
                 self.money = self.money - MONEY_GAMBLE
-                model.agent[target].performance.append(1)
-                self.performance.append(0)
 
 class Axelrod():
     "This is the model"
+    
     def __init__(self):
         self.agents = [Agent() for i in range(SIZE**2)]
         self.n_agents = SIZE**2
@@ -88,28 +76,22 @@ class Axelrod():
         self.results = {} # empty dictionary
         self.results = {i: [] for i in range(SIZE**2)}
         # add results for each participant to their corresponding key
-        for i in range(self.n_agents):
-            self.results[i] = []
-
-
+        for i in range(SIZE**2):
+            self.results[i] = []            
+    
     def tick(self):
         "Runs a single cycle of the simulation"
-        for i in range(0, SIZE**2):    
-            try:
-                active = list(enumerate(self.agents))[i]
-                passive = rd.choice(list(enumerate(self.agents)))
-                while active[0] == passive[0]:
-                    passive = rd.choice(list(enumerate(self.agents))) 
-                if FIXED_SHARE == 1:
-                    active[1].game(MONEY_GAMBLE_FIXED, passive[0], self)
-                elif FIXED_SHARE == 0:
-                    active[1].game(MONEY_GAMBLE_SHARE * sum([self.agents[i].money for i in range(SIZE**2)]), passive[0], self)
-                total_wealth = sum([self.agents[i].money for i in range(0, SIZE**2)])
-                for i in range(0, SIZE**2):
-                   self.agents[i].money = (1-TAX_RATE) * self.agents[i].money + (TAX_RATE * total_wealth / (SIZE**2))
-            except IndexError:
-               self.tick()
-
+        try:
+            active = rd.choice(list(enumerate(self.agents)))
+            passive = rd.choice(list(enumerate(self.agents)))
+            while active[0] == passive[0]:
+                passive = rd.choice(list(enumerate(self.agents)))     
+            active[1].game(MONEY_GAMBLE_SHARE * sum([self.agents[i].money for i in range(SIZE**2)]), passive[0], self)
+            total_wealth = sum([self.agents[i].money for i in range(0, SIZE**2)])
+            for i in range(0, SIZE**2):
+                self.agents[i].money = (1-TAX_RATE) * self.agents[i].money + (TAX_RATE * total_wealth / (SIZE**2))
+        except IndexError:
+            self.tick()
  
     def show_state(self):
         for n in range(0, SIZE):
