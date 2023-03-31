@@ -15,10 +15,11 @@ import random as rd
 
 # Define constants
 SIZE = 7 # grid of agents with SIZE * SIZE
-RUNS = 100000 # number of iterations
+RUNS = 100 # number of iterations
 PROB_SHIFT = 0.1 # additional winning probability for the agent with more money
 MONEY_GAMBLE_SHARE = 0.004 # play in a game for this share of total money in the economy
-START_WEALTH_DISTRIBUTION = 4 # 1: everyone gets 2/7, 2: random draw from uniform(0,4/7), 3: random draw from beta(2,5): replicates realistic wealth distribution between 0 and 1 with expected value 2/7; 4: everyone gets 1
+FIXED_SHARE = 1 # 1: agents play for a fixed amount of money, 0: play for share of cake via MONEY_GAMBLE_SHARE
+MONEY_GAMBLE_FIXED = 0.01 # fixed money gamble parameterSTART_WEALTH_DISTRIBUTION = 4 # 1: everyone gets 2/7, 2: random draw from uniform(0,4/7), 3: random draw from beta(2,5): replicates realistic wealth distribution between 0 and 1 with expected value 2/7; 4: everyone gets 1
 GREEDINESS_DISTRIBUTION = 4 # 1: everyone gets 0.5, 2: random draw from uniform(0,1), 3: random draw from beta(5,5): some agents are very greedy and some not at all; 4: half is 0.6, other half is 0.4
 TAX_RATE = 0.00003 # flat tax on wealth, redistributed lump-sum every iteration. Set to 0 to get model without state
 NO_DEBT = 1 # 1: switch off that agents can have money smaller or equal to zero, 0: allow debt
