@@ -90,20 +90,25 @@ class Axelrod():
         for i in range(self.n_agents):
             self.results[i] = []
 
-    
+
     def tick(self):
         "Runs a single cycle of the simulation"
-        try:
-            active = rd.choice(list(enumerate(self.agents)))
-            passive = rd.choice(list(enumerate(self.agents)))
-            while active[0] == passive[0]:
-                passive = rd.choice(list(enumerate(self.agents)))     
-            active[1].game(MONEY_GAMBLE_SHARE * sum([self.agents[i].money for i in range(SIZE**2)]), passive[0], self)
-            total_wealth = sum([self.agents[i].money for i in range(0, SIZE**2)])
-            for i in range(0, SIZE**2):
-                self.agents[i].money = (1-TAX_RATE) * self.agents[i].money + (TAX_RATE * total_wealth / (SIZE**2))
-        except IndexError:
-            self.tick()
+        for i in range(0, SIZE**2):    
+            try:
+                active = list(enumerate(self.agents))[i]
+                passive = rd.choice(list(enumerate(self.agents)))
+                while active[0] == passive[0]:
+                    passive = rd.choice(list(enumerate(self.agents))) 
+                if FIXED_SHARE == 1:
+                    active[1].game(MONEY_GAMBLE_FIXED, passive[0], self)
+                elif FIXED_SHARE == 0:
+                    active[1].game(MONEY_GAMBLE_SHARE * sum([self.agents[i].money for i in range(SIZE**2)]), passive[0], self)
+                total_wealth = sum([self.agents[i].money for i in range(0, SIZE**2)])
+                for i in range(0, SIZE**2):
+                   self.agents[i].money = (1-TAX_RATE) * self.agents[i].money + (TAX_RATE * total_wealth / (SIZE**2))
+            except IndexError:
+               self.tick()
+
  
     def show_state(self):
         for n in range(0, SIZE):
