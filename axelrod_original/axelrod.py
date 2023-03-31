@@ -13,6 +13,10 @@ from matplotlib import pyplot
 from numpy.random import random
 from matplotlib import cm
 import random as rd
+from itertools import islice
+def take(n, iterable):
+    """Return the first n items of the iterable as a list."""
+    return list(islice(iterable, n))
 
 # Define constants
 SIZE = 7 # grid of agents with SIZE * SIZE
@@ -25,6 +29,7 @@ TAX_RATE = 0.00003 # flat tax on wealth, redistributed lump-sum every iteration.
 NO_DEBT = 1 # 1: switch off that agents can have money smaller or equal to zero, 0: allow debt
 VISUAL = 0 # 1: shows plots while calculating, 0: does not show plots
 # Seed pseudo-random number generator
+N_SIM = 10 # number of model simulations
 
 #rd.seed(1)
 
@@ -68,13 +73,13 @@ class Agent():
             if rd.uniform(0, 1) < win_probability:    
                 model.agents[target].money = model.agents[target].money - MONEY_GAMBLE
                 self.money = self.money + MONEY_GAMBLE
-                model.agent[target].performance.append(0)
+                model.agents[target].performance.append(0)
                 self.performance.append(1)
                 
             else: 
                 model.agents[target].money = model.agents[target].money + MONEY_GAMBLE
                 self.money = self.money - MONEY_GAMBLE
-                model.agent[target].performance.append(1)
+                model.agents[target].performance.append(1)
                 self.performance.append(0)
 
 class Axelrod():
@@ -84,7 +89,7 @@ class Axelrod():
         self.agents = [Agent() for i in range(SIZE**2)]
         self.n_agents = SIZE**2
         
-        # init result vector 
+        # init result vector
         self.results = {} # empty dictionary
         self.results = {i: [] for i in range(SIZE**2)}
         # add results for each participant to their corresponding key
@@ -121,6 +126,8 @@ class Axelrod():
         print("Initial state of the model:")
         print()
         self.show_state()
+        for i in range (SIZE**2):
+            self.results[i].append(self.agents[i].greediness)
         print()
         print("Running simulation...")
         for r in range(1,RUNS):
@@ -133,6 +140,8 @@ class Axelrod():
             self.tick()
         print("Final state of the model:")
         self.show_state()
+        for i in range (SIZE**2):
+            self.results[i].append(self.agents[i].performance)
 
     def visualize_output(self):
         color = []
@@ -143,6 +152,11 @@ class Axelrod():
         pyplot.show()
 
 if __name__ == "__main__":
-    model = Axelrod()
-    model.run_sim()
-
+    # initialize results from different simulations
+    results_sim = {} # empty dictionary
+    results_sim = {i: [] for i in range(1, N_SIM)}
+    for s in range(1, N_SIM):
+        model = Axelrod()
+        model.run_sim()
+        results_sim[s].append(model.results)
+    #print(take(2, results_sim[1]))
