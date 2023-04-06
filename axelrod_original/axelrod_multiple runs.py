@@ -18,22 +18,23 @@ def take(n, iterable):
     """Return the first n items of the iterable as a list."""
     return list(islice(iterable, n))
 
-# Define constants
+# Parameters
 SIZE = 7 # grid of agents with SIZE * SIZE
-RUNS = 100 # number of iterations
 PROB_SHIFT = 0.1 # additional winning probability for the agent with more money
-MONEY_GAMBLE_SHARE = 0.004 # play in a game for this share of total money in the economy
-FIXED_SHARE = 1 # 1: agents play for a fixed amount of money, 0: play for share of cake via MONEY_GAMBLE_SHARE
+MONEY_GAMBLE_SHARE = 0.004 # play in a game for this share of total money in the economy (relates to total money for normalization)
 MONEY_GAMBLE_FIXED = 0.01 # fixed money gamble parameter
+TAX_RATE = 0.00003 # flat tax on wealth, redistributed lump-sum every iteration. Set to 0 to get model without state
+
+# Variables for different versions of the model
+FIXED_SHARE = 1 # 1: agents play for a fixed amount of money, 0: play for share of cake via MONEY_GAMBLE_SHARE
+NO_DEBT = 1 # 1: agents stop playing when they run out of money, 0: allow debt
 START_WEALTH_DISTRIBUTION = 4 # 1: everyone gets 2/7, 2: random draw from uniform(0,4/7), 3: random draw from beta(2,5): replicates realistic wealth distribution between 0 and 1 with expected value 2/7; 4: everyone gets 1
 GREEDINESS_DISTRIBUTION = 4 # 1: everyone gets 0.5, 2: random draw from uniform(0,1), 3: random draw from beta(5,5): some agents are very greedy and some not at all; 4: half is 0.6, other half is 0.4
-TAX_RATE = 0.00003 # flat tax on wealth, redistributed lump-sum every iteration. Set to 0 to get model without state
-NO_DEBT = 1 # 1: switch off that agents can have money smaller or equal to zero, 0: allow debt
 VISUAL = 0 # 1: shows plots while calculating, 0: does not show plots
-# Seed pseudo-random number generator
-N_SIM = 10 # number of model simulations
 
-#rd.seed(1)
+# Variables related to computation
+RUNS = 10 # number of iterations
+N_SIM = 2 # number of model simulations
 
 # Define the model and the agents as classes
 class Agent():
@@ -68,7 +69,9 @@ class Agent():
 
         if self.money > model.agents[target].money:
             win_probability = 0.5 + PROB_SHIFT
-        else:
+        elif self.money == model.agents[target].money:
+            win_probability = 0.5
+        elif self.money < model.agents[target].money:
             win_probability = 0.5 - PROB_SHIFT
 
         if rd.uniform(0, 1) < interaction_probability:
@@ -114,9 +117,8 @@ class Axelrod():
                     active[1].game(MONEY_GAMBLE_FIXED, passive[0], self)
                 elif FIXED_SHARE == 0:
                     active[1].game(MONEY_GAMBLE_SHARE * sum([self.agents[i].money for i in range(SIZE**2)]), passive[0], self)
-                total_wealth = sum([self.agents[i].money for i in range(0, SIZE**2)])
                 for i in range(0, SIZE**2):
-                   self.agents[i].money = (1-TAX_RATE) * self.agents[i].money + (TAX_RATE * total_wealth / (SIZE**2))
+                   self.agents[i].money = (1-TAX_RATE) * self.agents[i].money + (TAX_RATE * sum([self.agents[i].money for i in range(0, SIZE**2)]) / (SIZE**2))
             except IndexError:
                self.tick()
  
