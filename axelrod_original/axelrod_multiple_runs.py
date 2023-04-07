@@ -1,3 +1,9 @@
+"""
+Implementation of the Axelrod model of cultural convergence and polarisation
+AXELROD R (1997) The dissemination of culture - A model with local convergence and global polarization. 
+    Journal of Conflict Resolution 41(2), pp. 203-226.]
+"""
+
 # Import libraries
 import numpy as np
 import random as rd
