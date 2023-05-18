@@ -172,7 +172,7 @@ def show_histogram(results_sim, state, n_run):
     for i in range (SIZE**2):
         distribution.append(results_sim[n_run][0]['money'][i][state])
     plt.hist(distribution)
-    plt.title('Final money distribution')
+    plt.title('Money distribution after ' + str(RUNS) + ' periods')
     plt.xlabel('Money')
     plt.ylabel('No. agents')
     plt.show()
@@ -193,8 +193,8 @@ def plot_gini_evolve(results_sim, n_run):
     for t in range(n_timepoints):
         gini_index[t] = gini(money_distribution[:,t])
     plt.plot(gini_index)
-    plt.title('Gini coefficient of money over time: 1% taxes per period')
+    plt.title('Gini coefficient of money over time: ' + str(100*TAX_RATE) + '% taxes/period')
     plt.xlabel('Time')
-    plt.ylabel('Gini Index')    
+    plt.ylabel('Gini coefficient')    
     plt.show()
 plot_gini_evolve(results_sim, 0) # plot gini evolution for the first model run
